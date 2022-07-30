@@ -1,0 +1,22 @@
+{
+  "name": "movies-explorer-api",
+  "version": "1.0.0",
+  "description": "Бэкенд проекта movies-explorer",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "start": "node app.js",
+    "dev": "nodemon app.js",
+    "lint": "npx eslint ."
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/Stas-Makarov/movies-explorer-api.git"
+  },
+  "author": "Stas Makarov",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/Stas-Makarov/movies-explorer-api/issues"
+  },
+  "homepage": "https://github.com/Stas-Makarov/movies-explorer-api#readme"
+}
