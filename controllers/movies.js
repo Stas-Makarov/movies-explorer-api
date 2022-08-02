@@ -51,20 +51,15 @@ module.exports.createMovie = (req, res, next) => {
 };
 
 module.exports.deleteMovie = (req, res, next) => {
-  const { _id } = req.params;
-  return Movie.findOne({ _id })
-    .orFail(new NotFoundError(`Фильм с указанным id:${_id} не найден`))
+  const { movieId } = req.params;
+  return Movie.findOne({ movieId })
+    .orFail(new NotFoundError(`Фильм с указанным id:${movieId} не найден`))
     .then((movie) => {
-      if (movie) {
-        // приведём к строке поле owner карточки
-        const owner = movie.owner.toString();
-        // сравним наш id со значением owner у фильма
-        if (owner === req.user._id) {
-          return movie.remove();
-        }
-        return Promise.reject(new NoRightsError('Запрещено удалять чужие фильмы!'));
+      const owner = movie.owner.toString();
+      if (owner === req.user._id) {
+        return movie.remove();
       }
-      return Promise.reject(new NotFoundError('Фильм не найден'));
+      return Promise.reject(new NoRightsError('Запрещено удалять чужие фильмы!'));
     })
     .then(() => res.status(200).send({ message: 'Фильм удалён навсегда!' }))
     .catch(next);

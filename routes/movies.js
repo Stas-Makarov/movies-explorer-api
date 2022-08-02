@@ -1,17 +1,16 @@
-const moviesRouter = require('express').Router();
+const router = require('express').Router();
 const { celebrate, Joi } = require('celebrate');
 const validator = require('validator');
-
 const { getMovies, createMovie, deleteMovie } = require('../controllers/movies');
 
-moviesRouter.get('/', getMovies);
+router.get('/movies', getMovies);
 
-moviesRouter.post('/', celebrate({
+router.post('/movies', celebrate({
   body: Joi.object().keys({
     country: Joi.string().required(),
     director: Joi.string().required(),
     duration: Joi.number().required(),
-    year: Joi.number().required(),
+    year: Joi.string().required(),
     description: Joi.string().required(),
     image: Joi.string().required().custom((value, helpers) => {
       if (validator.isURL(value)) {
@@ -37,7 +36,7 @@ moviesRouter.post('/', celebrate({
   }),
 }), createMovie);
 
-moviesRouter.delete('/:movieId', celebrate({
+router.delete('/movies/:movieId', celebrate({
   params: Joi.object().keys({
     movieId: Joi
       .string()
@@ -48,4 +47,4 @@ moviesRouter.delete('/:movieId', celebrate({
   }),
 }), deleteMovie);
 
-module.exports = moviesRouter;
+module.exports = router;

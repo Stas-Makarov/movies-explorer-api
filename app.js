@@ -5,9 +5,9 @@ require('dotenv').config();
 const cors = require('cors');
 const bodyParser = require('body-parser');
 const cookieParser = require('cookie-parser');
-const { errors, celebrate, Joi } = require('celebrate');
-const { login, createUser, signout } = require('./controllers/users');
-const { auth } = require('./middlewares/auth');
+const { errors } = require('celebrate');
+const helmet = require('helmet');
+const limiter = require('./middlewares/rate-limiter');
 const NotFoundError = require('./errors/NotFoundError');
 const { requestLogger, errorLogger } = require('./middlewares/logger');
 
@@ -31,6 +31,7 @@ mongoose
     useNewUrlParser: true,
     useUnifiedTopology: true,
   })
+  // eslint-disable-next-line no-console
   .catch((err) => console.log(err));
 
 app.use(bodyParser.json());
@@ -45,25 +46,10 @@ app.get('/crash-test', () => {
 
 app.use(requestLogger);
 
-app.post('/signup', celebrate({
-  body: Joi.object().keys({
-    email: Joi.string().required().email(),
-    password: Joi.string().required(),
-    name: Joi.string().required().min(2).max(30),
-  }),
-}), createUser);
-app.post('/signin', celebrate({
-  body: Joi.object().keys({
-    email: Joi.string().required().email(),
-    password: Joi.string().required(),
-  }),
-}), login);
-app.post('/signout', signout);
+app.use(helmet());
+app.use(limiter);
 
-app.use(auth);
-
-app.use('/users', require('./routes/users'));
-app.use('/movies', require('./routes/movies'));
+app.use(require('./routes/index'));
 
 app.use((req, res, next) => {
   next(new NotFoundError('Not found'));

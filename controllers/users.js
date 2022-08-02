@@ -9,17 +9,9 @@ const EmailUniqueError = require('../errors/EmailUniqueError');
 const { NODE_ENV, SECRET_KEY } = process.env;
 
 module.exports.getUserById = (req, res, next) => {
-  User.findById(req.user._id).orFail()
-    .then((user) => {
-      if (user === null) {
-        throw new NotFoundError('Нет пользователя с таким id');
-      }
-      res.status(200).send({
-        name: user.name,
-        _id: user._id,
-        email: user.email,
-      });
-    })
+  User.findById(req.user._id)
+    .orFail(new NotFoundError('Нет пользователя с таким id'))
+    .then((user) => res.status(200).send(user))
     .catch(next);
 };
 
@@ -49,31 +41,35 @@ module.exports.createUser = (req, res, next) => {
 };
 
 module.exports.updateUser = (req, res, next) => {
-  const { name, email } = req.body;
-  User.findByIdAndUpdate(
-    req.user._id,
-    { name, email },
-    { runValidators: true, new: true },
-  ).orFail()
+  const { _id } = req.user;
+  const { email, name } = req.body;
+  return User.findOne({ email })
     .then((user) => {
-      if (user === null) {
-        throw new NotFoundError('Нет пользователя с таким id');
+      if (user && user._id.toString() !== _id) {
+        throw new EmailUniqueError('Данный email уже занят');
+      } else {
+        return User.findByIdAndUpdate(
+          _id,
+          { email, name },
+          { new: true, runValidators: true },
+        ).orFail(
+          new NotFoundError('Пользователь с указанным id не найден'),
+        );
       }
-      res.status(200).send({
-        name: user.name,
-        _id: user._id,
-        email: user.email,
-      });
     })
-    .catch(next);
+    .then((user) => res.status(200).send(user))
+    .catch((err) => {
+      if (err.name === 'ValidationError') {
+        return next(new ValidationError('Переданы некорректные данные при создании пользователя.'));
+      }
+      return next(err);
+    });
 };
 
-
 module.exports.login = (req, res, next) => {
-  const { email } = req.body;
+  const { email, password } = req.body;
 
-  User.findOne({ email })
-    .select('+password')
+  User.findUserByCredentials(email, password)
     .then((user) => {
       const token = jwt.sign({ _id: user._id }, NODE_ENV === 'production' ? SECRET_KEY : 'dev-secret', { expiresIn: '7d' });
       res.cookie('jwt', token, {
