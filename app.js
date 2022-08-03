@@ -8,7 +8,6 @@ const cookieParser = require('cookie-parser');
 const { errors } = require('celebrate');
 const helmet = require('helmet');
 const limiter = require('./middlewares/rate-limiter');
-const NotFoundError = require('./errors/NotFoundError');
 const { requestLogger, errorLogger } = require('./middlewares/logger');
 
 const app = express();
@@ -50,10 +49,6 @@ app.use(helmet());
 app.use(limiter);
 
 app.use(require('./routes/index'));
-
-app.use((req, res, next) => {
-  next(new NotFoundError('Not found'));
-});
 
 app.use(errorLogger);
 

@@ -43,23 +43,19 @@ module.exports.createUser = (req, res, next) => {
 module.exports.updateUser = (req, res, next) => {
   const { _id } = req.user;
   const { email, name } = req.body;
-  return User.findOne({ email })
-    .then((user) => {
-      if (user && user._id.toString() !== _id) {
-        throw new EmailUniqueError('Данный email уже занят');
-      } else {
-        return User.findByIdAndUpdate(
-          _id,
-          { email, name },
-          { new: true, runValidators: true },
-        ).orFail(
-          new NotFoundError('Пользователь с указанным id не найден'),
-        );
-      }
-    })
+  return User.findByIdAndUpdate(
+    _id,
+    { email, name },
+    { new: true, runValidators: true },
+  )
+    .orFail(
+      new NotFoundError('Пользователь с указанным id не найден'),
+    )
     .then((user) => res.status(200).send(user))
     .catch((err) => {
-      if (err.name === 'ValidationError') {
+      if (err.code === 11000) {
+        return next(new EmailUniqueError('Емейл занят'));
+      } if (err.name === 'ValidationError') {
         return next(new ValidationError('Переданы некорректные данные при создании пользователя.'));
       }
       return next(err);
