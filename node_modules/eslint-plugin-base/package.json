@@ -1,0 +1,23 @@
+{
+  "name": "eslint-plugin-base",
+  "version": "1.0.0",
+  "description": "base eslint config for our projects",
+  "keywords": [
+    "eslint",
+    "eslintplugin",
+    "eslint-plugin"
+  ],
+  "author": "Yaroslav Dobzhanskyi <yarsky@carpathian.ninja>",
+  "main": "index.js",
+  "dependencies": {
+    "@vue/eslint-config-airbnb": "^5.0.2",
+    "@vue/eslint-config-standard": "^5.1.2",
+    "eslint-plugin-import": "^2.20.2",
+    "eslint-plugin-node": "^11.1.0",
+    "eslint-plugin-vue": "^6.2.2"
+  },
+  "engines": {
+    "node": ">=0.10.0"
+  },
+  "license": "MIT"
+}
