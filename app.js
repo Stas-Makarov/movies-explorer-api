@@ -11,10 +11,10 @@ const limiter = require('./middlewares/rate-limiter');
 const { requestLogger, errorLogger } = require('./middlewares/logger');
 
 const app = express();
-const { PORT = 3000, DB_PATH = 'mongodb://localhost:27017/bitfilmsdb' } = process.env;
+const { PORT = 3001, DB_PATH = 'mongodb://localhost:27017/bitfilmsdb' } = process.env;
 
 const allowedCors = [
-  'http://localhost:3000',
+  'http://localhost:3001',
   'https://s.d.domainname.students.nomoredomains.xyz',
   'https://api.s.d.domainname.students.nomoredomains.xyz',
 ];
